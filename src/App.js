@@ -78,7 +78,7 @@ const Main = ({forecast}) => {
   return (
     <main className="main">
       <CityInput forecast={forecast} />
-      {JSON.parse(window.localStorage.getItem('favouriteCities')).length === 0 ? <Tutorial /> : <FavouriteCities forecast = {forecast}/>}
+      {JSON.parse(window.localStorage.getItem('favouriteCities'))?.length === 0 ? <Tutorial /> : <FavouriteCities forecast = {forecast}/>}
     </main>
   );
 };
