@@ -8,7 +8,7 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState(window.sessionStorage.getItem('currentPage') !== null ? Number(window.sessionStorage.getItem('currentPage')) : -1);
 	useEffect(() => {
 		window.localStorage.setItem('сities', JSON.stringify([{id : 1, en : 'Moscow', ru : 'Москва'}, {id : 2, en : 'Saint Petersburg', ru : 'Санкт-Петербург'}, {id : 3, en : 'Izhevsk', ru : 'Ижевск'}, {id : 4, en : 'Kazan', ru : 'Казань'}]))
-		if (window.localStorage.getItem('favouriteCities') == null){
+		if (window.localStorage.getItem('favouriteCities') === null){
 			window.localStorage.setItem('favouriteCities', JSON.stringify([]))
 		}
 	}, [])
@@ -34,7 +34,7 @@ const App = () => {
 const Header = ({backToMain}) => {
   return (
     <header className="header">
-      <a className="header__logo" onClick={backToMain}>
+      <a href="#" className="header__logo" onClick={backToMain}>
         <svg className="logo__app-icon">
           <use href={sprite + "#app-icon"} />
         </svg>
@@ -59,7 +59,7 @@ const FavouriteCity = ({forecast, city}) => {
 			})
 	}, [])
 	return (
-		<a onClick={() => {forecast(city.id)}} className="favourite-cities__item">
+		<a href="#" onClick={() => {forecast(city.id)}} className="favourite-cities__item">
 			<p className="city__name">{Object.keys(forecastData).length !== 0 && forecastData?.city?.name}</p>
 			<p className="city__temperature">{Object.keys(forecastData).length !== 0 && Math.round(forecastData?.list[0].main.feels_like) + '°'}</p>
 			<svg  className="city__current-weather">
@@ -78,7 +78,7 @@ const Main = ({forecast}) => {
   return (
     <main className="main">
       <CityInput forecast={forecast} />
-      {JSON.parse(window.localStorage.getItem('favouriteCities')).length == 0 ? <Tutorial /> : <FavouriteCities forecast = {forecast}/>}
+      {JSON.parse(window.localStorage.getItem('favouriteCities')).length === 0 ? <Tutorial /> : <FavouriteCities forecast = {forecast}/>}
     </main>
   );
 };
@@ -95,15 +95,15 @@ const CityInput = ({forecast}) => {
       inputCities.filter((city) => city.toLowerCase().includes(searchValue)).map((city, cityindex) => {
         const splitValue = city.substring(city.toLowerCase().indexOf(searchValue), city.toLowerCase().indexOf(searchValue) + searchValue.length)
           const searchResult = [city.split(splitValue)[0], splitValue, city.split(splitValue)[1],].filter((parts) => parts !== "");
-		  const cityId = JSON.parse(window.localStorage.getItem('сities')).filter(currentCity => currentCity.ru == city)[0].id;
+		  const cityId = JSON.parse(window.localStorage.getItem('сities')).filter(currentCity => currentCity.ru === city)[0].id;
           return (
-            <a onClick={() => {forecast(cityId)}} key={city} className="city-input__result">
+            <a href="#" onClick={() => {forecast(cityId)}} key={city} className="city-input__result">
               {searchResult.map((result, resultIndex) => {
-                if (resultIndex == 0) {
+                if (resultIndex === 0) {
                   result =
                     result.at(0).toUpperCase() + searchResult[0].substring(1);
                 }
-                return result.toLowerCase() == searchValue ? <span key = {result} className="result__match">{result}</span>: result ;
+                return result.toLowerCase() === searchValue ? <span key = {result} className="result__match">{result}</span>: result ;
               })}
             </a>
           );
@@ -155,8 +155,8 @@ const Tutorial = () => {
 
 const CityForecast = ({backToMain}) => {
   const [forecastData, setForecastData] = useState({});
-  const city = JSON.parse(window.localStorage.getItem('сities')).filter(city => city.id == window.sessionStorage.getItem('currentPage'))[0];
-  const [isFavourite, setFavourite] = useState(JSON.parse(window.localStorage.getItem('favouriteCities')).filter(currentCity => currentCity.id == city.id).length > 0);
+  const city = JSON.parse(window.localStorage.getItem('сities')).filter(city => city.id === window.sessionStorage.getItem('currentPage'))[0];
+  const [isFavourite, setFavourite] = useState(JSON.parse(window.localStorage.getItem('favouriteCities')).filter(currentCity => currentCity.id === city.id).length > 0);
   const openWeatherRequest = `http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=81fa18dbd91f1dfee9f40c6afa4e833e&q=${city.en}&lang=RU&units=metric`;
 	
   useEffect(() => {
