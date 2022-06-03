@@ -1,50 +1,43 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import sprite from "./sprite.svg";
-
+import {Link, Routes, Route ,useNavigate, useLocation, useParams} from 'react-router-dom';
 
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState(window.sessionStorage.getItem('currentPage') !== null ? Number(window.sessionStorage.getItem('currentPage')) : -1);
-	useEffect(() => {
-		window.localStorage.setItem('сities', JSON.stringify([{id : 1, en : 'Moscow', ru : 'Москва'}, {id : 2, en : 'Saint Petersburg', ru : 'Санкт-Петербург'}, {id : 3, en : 'Izhevsk', ru : 'Ижевск'}, {id : 4, en : 'Kazan', ru : 'Казань'}]))
-		if (window.localStorage.getItem('favouriteCities') === null){
-			window.localStorage.setItem('favouriteCities', JSON.stringify([]))
-		}
-	}, [])
-
-
-  const backToMain = () => {
-	window.sessionStorage.setItem('currentPage', -1)  
-	setCurrentPage(-1);
-  }
-  const forecast = (page) => {
-	window.sessionStorage.setItem('currentPage', page)  
-	setCurrentPage(page);
+  localStorage.setItem('сities', JSON.stringify([{id : 1, en : 'Moscow', ru : 'Москва'},
+    {id : 2, en : 'Saint Petersburg', ru : 'Санкт-Петербург'},
+    {id : 3, en : 'Izhevsk', ru : 'Ижевск'},
+    {id : 4, en : 'Kazan', ru : 'Казань'}]));
+  if (localStorage.getItem('favouriteCities') === null){
+    localStorage.setItem('favouriteCities', JSON.stringify([]))
   }
   return (
-    <div className="app">
-      <Header backToMain = {backToMain}/>
-      {currentPage === -1 ? <Main forecast = {forecast} /> : <CityForecast backToMain = {backToMain}  />}
-    </div>
+      <div className="app">
+        <Header/>
+        <Routes>
+          <Route exact path="/" element={<Main/>}/>
+          <Route path="/city/:cityId" element={<CityForecast/>}/>
+        </Routes>
+      </div>
   );
 };
 
 
-const Header = ({backToMain}) => {
+const Header = () => {
   return (
     <header className="header">
-      <a href="#" className="header__logo" onClick={backToMain}>
+      <Link to="/" href="#" className="header__logo" >
         <svg className="logo__app-icon">
           <use href={sprite + "#app-icon"} />
         </svg>
         <span className="logo__name">WeatherCheck</span>
-      </a>
+      </Link>
     </header>
   );
 };
 
-const FavouriteCity = ({forecast, city}) => {
+const FavouriteCity = ({city}) => {
 	const [forecastData, setForecastData] = useState({})
 	const openWeatherRequest = `http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=81fa18dbd91f1dfee9f40c6afa4e833e&q=${city.en}&lang=RU&units=metric`;
 	useEffect(() => {
@@ -59,18 +52,18 @@ const FavouriteCity = ({forecast, city}) => {
 			})
 	}, [])
 	return (
-		<a href="#" onClick={() => {forecast(city.id)}} className="favourite-cities__item">
+		<Link to={`/city/${city.id}/`} className="favourite-cities__item">
 			<p className="city__name">{Object.keys(forecastData).length !== 0 && forecastData?.city?.name}</p>
 			<p className="city__temperature">{Object.keys(forecastData).length !== 0 && Math.round(forecastData?.list[0].main.feels_like) + '°'}</p>
-			<svg  className="city__current-weather">
+			<svg className="city__current-weather">
 				<use href={Object.keys(forecastData).length !== 0 ? sprite + "#" + forecastData?.list[0].weather[0].main.toLowerCase() : ''} />
 			</svg>
-		</a>
+		</Link>
 	)
 }
 
-const FavouriteCities = ({forecast}) => {
-	return(<div className="favourite-cities">{JSON.parse(window.localStorage.getItem('favouriteCities')).map((city) => <FavouriteCity key={city.id} forecast={forecast} city={city}/>)}</div>)
+const FavouriteCities = () => {
+	return(<div className="favourite-cities">{JSON.parse(localStorage.getItem('favouriteCities')).map((city) => <FavouriteCity key={city.id} city={city}/>)}</div>)
 }
 
 
@@ -78,7 +71,7 @@ const Main = ({forecast}) => {
   return (
     <main className="main">
       <CityInput forecast={forecast} />
-      {JSON.parse(window.localStorage.getItem('favouriteCities'))?.length === 0 ? <Tutorial /> : <FavouriteCities forecast = {forecast}/>}
+      {JSON.parse(localStorage.getItem('favouriteCities'))?.length === 0 ? <Tutorial /> : <FavouriteCities forecast = {forecast}/>}
     </main>
   );
 };
@@ -86,7 +79,7 @@ const Main = ({forecast}) => {
 
 const CityInput = ({forecast}) => {
   const [isSearching, setSearching] = useState(false);
-  const inputCities = JSON.parse(window.localStorage.getItem('сities')).map(city => city.ru);
+  const inputCities = JSON.parse(localStorage.getItem('сities')).map(city => city.ru);
   const [searchResults, setSearchResults] = useState([]);
   const getInput = (e) => {
     const searchValue = e.target.value.toLowerCase().trim();
@@ -95,9 +88,9 @@ const CityInput = ({forecast}) => {
       inputCities.filter((city) => city.toLowerCase().includes(searchValue)).map((city, cityindex) => {
         const splitValue = city.substring(city.toLowerCase().indexOf(searchValue), city.toLowerCase().indexOf(searchValue) + searchValue.length)
           const searchResult = [city.split(splitValue)[0], splitValue, city.split(splitValue)[1],].filter((parts) => parts !== "");
-		  const cityId = JSON.parse(window.localStorage.getItem('сities')).filter(currentCity => currentCity.ru === city)[0].id;
+		  const cityId = JSON.parse(localStorage.getItem('сities')).filter(currentCity => currentCity.ru === city)[0].id;
           return (
-            <a href="#" onClick={() => {forecast(cityId)}} key={city} className="city-input__result">
+            <Link to={`/city/${cityId}/`} key={city} className="city-input__result">
               {searchResult.map((result, resultIndex) => {
                 if (resultIndex === 0) {
                   result =
@@ -105,7 +98,7 @@ const CityInput = ({forecast}) => {
                 }
                 return result.toLowerCase() === searchValue ? <span key = {result} className="result__match">{result}</span>: result ;
               })}
-            </a>
+            </Link>
           );
         })
     );
@@ -153,10 +146,12 @@ const Tutorial = () => {
 };
 
 
-const CityForecast = ({backToMain}) => {
+const CityForecast = () => {
+  const cityId = parseInt(useParams().cityId);
   const [forecastData, setForecastData] = useState({});
-  const city = JSON.parse(window.localStorage.getItem('сities')).filter(city => city.id === window.sessionStorage.getItem('currentPage'))[0];
-  const [isFavourite, setFavourite] = useState(JSON.parse(window.localStorage.getItem('favouriteCities')).filter(currentCity => currentCity.id === city.id).length > 0);
+  const city = JSON.parse(localStorage.getItem('сities')).filter(city => city.id === Number(cityId))[0];
+  const [isFavourite, setFavourite] = useState(JSON.parse(localStorage.getItem('favouriteCities')).filter(currentCity => currentCity.id === cityId).length > 0);
+
   const openWeatherRequest = `http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=81fa18dbd91f1dfee9f40c6afa4e833e&q=${city.en}&lang=RU&units=metric`;
 	
   useEffect(() => {
@@ -169,25 +164,30 @@ const CityForecast = ({backToMain}) => {
 	  (error) => {
 		  console.error(error);
 	  })
-  }, [])
+  }, [openWeatherRequest])
+
+  useEffect(() => {
+    
+    setFavourite(JSON.parse(localStorage.getItem('favouriteCities')).filter(favCity => favCity.id === cityId).length > 0) 
+  }, [cityId])
 
   const setFavourites = () => {
-	  !isFavourite ? window.localStorage.setItem('favouriteCities', JSON.stringify([...JSON.parse(window.localStorage.getItem('favouriteCities')), city])) : window.localStorage.setItem('favouriteCities', JSON.stringify(JSON.parse(window.localStorage.getItem('favouriteCities')).filter(currentCity => currentCity.id !== city.id)));
+	  !isFavourite ? localStorage.setItem('favouriteCities',
+      JSON.stringify([...JSON.parse(localStorage.getItem('favouriteCities')), city]))
+      : localStorage.setItem('favouriteCities', JSON.stringify(JSON.parse(localStorage.getItem('favouriteCities')).filter(currentCity => currentCity.id !== city.id)));
 	  setFavourite(prev => !prev);
   }
-  
 
   const formForecast = () => {
-	
   	return (
 	<div className="city-forecast">
 	<div className="upper-panel">
-		<div onClick={backToMain} className="back">
+		<Link to='/'  className="back">
 			<svg className="back__img">
 				<use href={sprite + "#back"} />
 			</svg>
 		<span className="back__text">Назад</span>
-		</div>
+		</Link>
 		<svg onClick={setFavourites} className="bookmark">
 			<use href={sprite + (isFavourite ? '#filled-bookmark' : '#bookmark')} />
 		</svg>
