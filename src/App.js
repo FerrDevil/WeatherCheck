@@ -39,7 +39,7 @@ const Header = () => {
 
 const FavouriteCity = ({city}) => {
 	const [forecastData, setForecastData] = useState({})
-	const openWeatherRequest = `http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=81fa18dbd91f1dfee9f40c6afa4e833e&q=${city.en}&lang=RU&units=metric`;
+	const openWeatherRequest = `https://cors-anywhere.herokuapp.com/http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=81fa18dbd91f1dfee9f40c6afa4e833e&q=${city.en}&lang=RU&units=metric`;
 	useEffect(() => {
 		fetch(openWeatherRequest)
 		.then(res => res.json())
@@ -152,7 +152,7 @@ const CityForecast = () => {
   const city = JSON.parse(localStorage.getItem('сities')).filter(city => city.id === Number(cityId))[0];
   const [isFavourite, setFavourite] = useState(JSON.parse(localStorage.getItem('favouriteCities')).filter(currentCity => currentCity.id === cityId).length > 0);
 
-  const openWeatherRequest = `http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=81fa18dbd91f1dfee9f40c6afa4e833e&q=${city.en}&lang=RU&units=metric`;
+  const openWeatherRequest = `https://cors-anywhere.herokuapp.com/http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=81fa18dbd91f1dfee9f40c6afa4e833e&q=${city.en}&lang=RU&units=metric`;
 	
   useEffect(() => {
 	fetch(openWeatherRequest)
